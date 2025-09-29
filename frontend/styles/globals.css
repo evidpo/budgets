@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+ /* Основные цвета светлой темы */
+  --light-primary: 59, 130, 246; /* blue-500 */
+  --light-primary-hover: 37, 99, 235; /* blue-60 */
+  --light-secondary: 107, 114, 128; /* gray-500 */
+  --light-secondary-hover: 75, 85, 99; /* gray-600 */
+  --light-success: 16, 185, 129; /* emerald-500 */
+  --light-success-hover: 5, 150, 109; /* emerald-600 */
+  --light-danger: 239, 68, 68; /* red-500 */
+  --light-danger-hover: 220, 38, 38; /* red-600 */
+  --light-warning: 245, 158, 1; /* amber-500 */
+  --light-warning-hover: 217, 119, 6; /* amber-600 */
+  --light-background: 255, 255, 255; /* white */
+  --light-surface: 249, 250, 251; /* gray-50 */
+  --light-text-primary: 17, 24, 39; /* gray-900 - более темный для лучшей контрастности */
+  --light-text-secondary: 55, 65, 81; /* gray-700 - лучше для контрастности */
+  --light-text-muted: 107, 114, 128; /* gray-500 - лучше для контрастности */
+  --light-border: 229, 231, 235; /* gray-200 */
+  
+  /* Цвета по умолчанию для светлой темы */
+  --primary: var(--light-primary);
+  --primary-hover: var(--light-primary-hover);
+  --secondary: var(--light-secondary);
+  --secondary-hover: var(--light-secondary-hover);
+  --success: var(--light-success);
+  --success-hover: var(--light-success-hover);
+  --danger: var(--light-danger);
+  --danger-hover: var(--light-danger-hover);
+  --warning: var(--light-warning);
+  --warning-hover: var(--light-warning-hover);
+  --background: var(--light-background);
+  --surface: var(--light-surface);
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --text-muted: var(--light-text-muted);
+  --border: var(--light-border);
+}
+
+body {
+ color: rgb(var(--text-primary));
+  background-color: rgb(var(--background));
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Поддержка темной темы */
+.dark {
+  /* Основные цвета темной темы */
+  --dark-primary: 96, 165, 250; /* blue-400 */
+  --dark-primary-hover: 59, 130, 246; /* blue-500 */
+  --dark-secondary: 156, 163, 175; /* gray-400 */
+  --dark-secondary-hover: 209, 213, 219; /* gray-300 */
+  --dark-success: 52, 211, 153; /* emerald-400 */
+  --dark-success-hover: 16, 185, 129; /* emerald-500 */
+  --dark-danger: 248, 113, 113; /* red-400 */
+  --dark-danger-hover: 239, 68, 68; /* red-500 */
+  --dark-warning: 251, 191, 36; /* amber-400 */
+  --dark-warning-hover: 245, 158, 11; /* amber-500 */
+  --dark-background: 17, 24, 39; /* gray-900 */
+  --dark-surface: 31, 41, 55; /* gray-800 */
+  --dark-text-primary: 255, 255, 255; /* white - для максимальной контрастности */
+  --dark-text-secondary: 209, 213, 219; /* gray-300 */
+  --dark-text-muted: 156, 163, 175; /* gray-400 */
+  --dark-border: 5, 65, 81; /* gray-700 */
+  
+  /* Цвета для темной темы */
+  --primary: var(--dark-primary);
+  --primary-hover: var(--dark-primary-hover);
+  --secondary: var(--dark-secondary);
+  --secondary-hover: var(--dark-secondary-hover);
+  --success: var(--dark-success);
+  --success-hover: var(--dark-success-hover);
+  --danger: var(--dark-danger);
+  --danger-hover: var(--dark-danger-hover);
+  --warning: var(--dark-warning);
+  --warning-hover: var(--dark-warning-hover);
+  --background: var(--dark-background);
+  --surface: var(--dark-surface);
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --text-muted: var(--dark-text-muted);
+  --border: var(--dark-border);
+}
+
+/* Плавный переход между темами */
+* {
+  transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease, fill 300ms ease, stroke 300ms ease;
+}
+
+/* Убираем переход для элементов, где он не нужен */
+button, input, select, textarea {
+  transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease;
+}
+
+/* Моноширинный шрифт для сумм */
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}

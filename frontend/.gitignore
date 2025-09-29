@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env*.local
+.env*.backup
+
+# Next.js
+.next/
+out/
+
+# Supabase
+supabase/.temp/
+supabase/seed.sql
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
