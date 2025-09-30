@@ -10,7 +10,7 @@
   --light-secondary-hover: 75, 85, 99; /* gray-600 */
   --light-success: 16, 185, 129; /* emerald-500 */
   --light-success-hover: 5, 150, 109; /* emerald-600 */
-  --light-danger: 239, 68, 68; /* red-500 */
+  --light-danger: 239, 68, 38; /* red-500 */
   --light-danger-hover: 220, 38, 38; /* red-600 */
   --light-warning: 245, 158, 1; /* amber-500 */
   --light-warning-hover: 217, 119, 6; /* amber-600 */
@@ -62,7 +62,7 @@ body {
   --dark-success: 52, 211, 153; /* emerald-400 */
   --dark-success-hover: 16, 185, 129; /* emerald-500 */
   --dark-danger: 248, 113, 113; /* red-400 */
-  --dark-danger-hover: 239, 68; /* red-500 */
+  --dark-danger-hover: 239, 68, 68; /* red-500 */
   --dark-warning: 251, 191, 36; /* amber-400 */
   --dark-warning-hover: 245, 158, 11; /* amber-500 */
   --dark-background: 17, 24, 39; /* gray-900 */
