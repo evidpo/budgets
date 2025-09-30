@@ -5,7 +5,7 @@
 :root {
  /* Основные цвета светлой темы */
   --light-primary: 59, 130, 246; /* blue-500 */
-  --light-primary-hover: 37, 99, 235; /* blue-60 */
+  --light-primary-hover: 37, 99, 235; /* blue-600 */
   --light-secondary: 107, 114, 128; /* gray-500 */
   --light-secondary-hover: 75, 85, 99; /* gray-600 */
   --light-success: 16, 185, 129; /* emerald-500 */
@@ -62,7 +62,7 @@ body {
   --dark-success: 52, 211, 153; /* emerald-400 */
   --dark-success-hover: 16, 185, 129; /* emerald-500 */
   --dark-danger: 248, 113, 113; /* red-400 */
-  --dark-danger-hover: 239, 68, 68; /* red-500 */
+  --dark-danger-hover: 239, 68; /* red-500 */
   --dark-warning: 251, 191, 36; /* amber-400 */
   --dark-warning-hover: 245, 158, 11; /* amber-500 */
   --dark-background: 17, 24, 39; /* gray-900 */
@@ -70,7 +70,7 @@ body {
   --dark-text-primary: 255, 255, 255; /* white - для максимальной контрастности */
   --dark-text-secondary: 209, 213, 219; /* gray-300 */
   --dark-text-muted: 156, 163, 175; /* gray-400 */
-  --dark-border: 5, 65, 81; /* gray-700 */
+  --dark-border: 55, 65, 81; /* gray-700 */
   
   /* Цвета для темной темы */
   --primary: var(--dark-primary);
