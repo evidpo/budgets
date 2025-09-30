@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import Layout from '../../components/Layout';
-import { useTransactions } from '../../lib/queries';
-import { useCreateTransactionMutation, useCreateTransferMutation } from '../../lib/mutations';
-import { useAccounts } from '../../hooks/useAccounts';
-import { useCategories } from '../../lib/queries';
-import { useDebts } from '../../lib/queries';
-import { useMembers } from '../../lib/queries';
-import { Transaction, TransactionFilter, CreateTransactionData, CreateTransferData } from '../../lib/types';
-import Amount from '../../components/ui/Amount';
-import CategoryTag from '../../components/ui/CategoryTag';
-import Button from '../../components/ui/Button';
-import Modal from '../../components/ui/Modal';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import DatePicker from '../../components/ui/DatePicker';
-import Icon from '../../components/ui/Icon';
+import Layout from '../components/Layout';
+import { useTransactions } from '../lib/queries';
+import { useCreateTransactionMutation, useCreateTransferMutation } from '../lib/mutations';
+import { useAccounts } from '../hooks/useAccounts';
+import { useCategories } from '../lib/queries';
+import { useDebts } from '../lib/queries';
+import { useMembers } from '../lib/queries';
+import { Transaction, TransactionFilter, CreateTransactionData, CreateTransferData } from '../lib/types';
+import Amount from '../components/ui/Amount';
+import CategoryTag from '../components/ui/CategoryTag';
+import Button from '../components/ui/Button';
+import Modal from '../components/ui/Modal';
+import Input from '../components/ui/Input';
+import Select from '../components/ui/Select';
+import DatePicker from '../components/ui/DatePicker';
+import Icon from '../components/ui/Icon';
 
 export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDarkMode?: () => void }) {
   // Состояния для фильтров
- const [filterFromDate, setFilterFromDate] = useState<string>('');
+  const [filterFromDate, setFilterFromDate] = useState<string>('');
   const [filterToDate, setFilterToDate] = useState<string>('');
   const [filterAccountId, setFilterAccountId] = useState<string>('');
   const [filterCategoryId, setFilterCategoryId] = useState<string>('');
@@ -27,7 +27,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
 
   // Состояния для пагинации
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; // Количество транзакций на странице
+  const itemsPerPage = 20;
 
   // Состояния для модального окна создания транзакции
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -38,17 +38,17 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [accountId, setAccountId] = useState('');
- const [categoryId, setCategoryId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [memberId, setMemberId] = useState('');
   const [debtId, setDebtId] = useState('');
- const [note, setNote] = useState('');
+  const [note, setNote] = useState('');
   
   // Состояния для формы перевода
- const [fromAccountId, setFromAccountId] = useState('');
+  const [fromAccountId, setFromAccountId] = useState('');
   const [toAccountId, setToAccountId] = useState('');
   
   // Хуки для получения данных
-  const { data: accounts = [] } = useAccounts('household-1', true); // временно используем фиксированный ID
+  const { data: accounts = [] } = useAccounts('household-1', true);
   const { data: categories = [] } = useCategories('household-1');
   const { data: debts = [] } = useDebts('household-1');
   const { data: members = [] } = useMembers('household-1');
@@ -72,7 +72,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
     if (!accountId || !amount) return;
     
     const transactionData: CreateTransactionData = {
-      household_id: 'household-1', // временно используем фиксированный ID
+      household_id: 'household-1',
       account_id: accountId,
       amount: parseFloat(amount) * (transactionType === 'income' ? 1 : -1),
       date,
@@ -87,7 +87,6 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
 
     try {
       await createTransactionMutation.mutateAsync(transactionData);
-      // Сброс формы
       setDescription('');
       setAmount('');
       setDate(new Date().toISOString().split('T')[0]);
@@ -102,8 +101,8 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
     }
   };
 
- // Функция для создания перевода
- const handleCreateTransfer = async () => {
+  // Функция для создания перевода
+  const handleCreateTransfer = async () => {
     if (!fromAccountId || !toAccountId || !amount) return;
     
     const transferData: CreateTransferData = {
@@ -116,7 +115,6 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
 
     try {
       await createTransferMutation.mutateAsync(transferData);
-      // Сброс формы
       setDescription('');
       setAmount('');
       setDate(new Date().toISOString().split('T')[0]);
@@ -127,7 +125,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
     } catch (error) {
       console.error('Ошибка при создании перевода:', error);
     }
- };
+  };
 
   // Функция для определения иконки транзакции
   const getTransactionIcon = (type: string) => {
@@ -143,7 +141,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
   const getTransactionColor = (type: string) => {
     switch (type) {
       case 'income': return 'text-green-600 dark:text-green-400';
-      case 'expense': return 'text-red-600 dark:text-red-40';
+      case 'expense': return 'text-red-600 dark:text-red-400';
       case 'transfer': return 'text-blue-600 dark:text-blue-400';
       default: return 'text-gray-600 dark:text-gray-400';
     }
@@ -322,7 +320,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
           )}
           
           {transactions.length === 0 && !isLoading && (
-            <div className="text-center py-8 text-gray-50 dark:text-gray-400">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               Транзакции не найдены. Создайте первую транзакцию, нажав на кнопку "Новая транзакция".
             </div>
           )}
@@ -394,7 +392,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                         onClick={() => setCurrentPage(pageNum)}
                         className={`relative inline-flex items-center px-4 py-2 text-sm ${
                           currentPage === pageNum
-                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-600 dark:border-blue-60 dark:text-white'
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-600 dark:border-blue-600 dark:text-white'
                             : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-600'
                         } border`}
                       >
@@ -449,7 +447,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                     type="button"
                     className={`px-4 py-2 rounded-md ${
                       transactionType === 'expense'
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-10'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                     }`}
                     onClick={() => setTransactionType('expense')}
@@ -468,6 +466,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                     Перевод
                   </button>
                 </div>
+              </div>
               
               {transactionType !== 'transfer' ? (
                 <>
@@ -500,6 +499,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                         onChange={(newDate) => setDate(newDate.toISOString().split('T')[0])}
                       />
                     </div>
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -539,6 +539,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                           ))}
                       </select>
                     </div>
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -576,6 +577,7 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                         ))}
                       </select>
                     </div>
+                  </div>
                   
                   <div>
                     <Input
@@ -587,7 +589,6 @@ export default function TransactionsPage({ darkMode, toggleDarkMode }: { darkMod
                   </div>
                 </>
               ) : (
-                // Форма для перевода
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div>

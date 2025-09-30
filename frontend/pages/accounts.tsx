@@ -320,7 +320,7 @@ const AccountsPage: React.FC = () => {
                         {account.type.charAt(0).toUpperCase() + account.type.slice(1)}
                       </div>
                     </div>
-                  
+                  </div>
                   <div className="flex items-center space-x-4">
                     <div className="text-right min-w-0">
                       <div className="font-medium text-gray-800 dark:text-white font-mono">
