@@ -2,22 +2,28 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Account } from '@/lib/types';
 
-export function useAccounts() {
+export function useAccounts(householdId: string | null) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAccounts();
-  }, []);
+    if (householdId) {
+      fetchAccounts();
+    }
+  }, [householdId]);
 
   async function fetchAccounts() {
+    if (!householdId) return;
+    
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
-        .order('created_at', { ascending: false });
+        .eq('household_id', householdId)
+        .order('sort_order', { ascending: true })
+        .order('name', { ascending: true });
 
       if (error) throw error;
 

@@ -111,7 +111,7 @@ class ApiService {
       if (includeBalance) {
         // Вызов кастомной функции для вычисления баланса
         const { data, error } = await supabase
-          .rpc('calculate_accounts_with_balance', { household_id: householdId });
+          .rpc('calculate_accounts_with_balance', { household_id_param: householdId });
 
         if (error) {
           const appError = ErrorHandler.convertError(error);

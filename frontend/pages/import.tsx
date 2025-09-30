@@ -82,10 +82,13 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     const fetchUserAndHousehold = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        setHouseholdId('current_household_id');
-        loadAccounts();
-        loadCategories();
-        loadDebts();
+        // Здесь нужно получить реальный ID домохозяйства пользователя
+        // Пока используем заглушку, но в реальном приложении это будет из контекста или API
+        const realHouseholdId = 'current_household_id'; // Заменить на реальный ID
+        setHouseholdId(realHouseholdId);
+        loadAccounts(realHouseholdId);
+        loadCategories(realHouseholdId);
+        loadDebts(realHouseholdId);
       }
     };
     

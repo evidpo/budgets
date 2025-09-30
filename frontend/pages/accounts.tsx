@@ -11,6 +11,7 @@ import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import Button from '../components/ui/Button';
 import Toggle from '../components/ui/Toggle';
+import { useCurrentHousehold } from '../hooks/useCurrentHousehold';
 
 interface AccountFormValues {
   name: string;
@@ -33,20 +34,24 @@ const AccountsPage: React.FC = () => {
     note: ''
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  
+  // Получаем текущее домохозяйство
+  const { household, loading: householdLoading, error: householdError } = useCurrentHousehold();
 
   const queryClient = useQueryClient();
 
-  // Получаем ID текущего домохозяйства (в реальном приложении это будет из контекста или сессии)
-  const householdId = 'current_household_id'; // Заменить на реальный ID домохозяйства
-
   // Загрузка счетов
   const { data: accounts = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['accounts', householdId, true], // с балансами
-    queryFn: () => api.getAccounts(householdId, true).then(res => {
-      if (res.error) throw new Error(res.error);
-      return res.data || [];
-    }),
+    queryKey: ['accounts', household?.id, true], // с балансами
+    queryFn: () => {
+      if (!household?.id) throw new Error('Домохозяйство не определено');
+      return api.getAccounts(household.id, true).then(res => {
+        if (res.error) throw new Error(res.error);
+        return res.data || [];
+      });
+    },
     staleTime: 1000 * 60 * 5, // 5 минут
+    enabled: !!household?.id // Запускаем запрос только когда есть ID домохозяйства
   });
 
  // Фильтрация счетов по архивности
@@ -73,7 +78,7 @@ const AccountsPage: React.FC = () => {
 
     try {
       await createAccountMutation.mutateAsync({
-        household_id: householdId,
+        household_id: household?.id,
         name: formValues.name,
         type: formValues.type,
         currency: formValues.currency,
@@ -150,7 +155,9 @@ const AccountsPage: React.FC = () => {
 
  const handleReorder = async (reorderedAccounts: any[]) => {
     // Оптимистичное обновление
-    const previousData = queryClient.getQueryData(['accounts', householdId, true]);
+    if (!household?.id) return;
+    
+    const previousData = queryClient.getQueryData(['accounts', household.id, true]);
     
     // Обновляем порядок локально
     const updatedAccounts = reorderedAccounts.map((account, index) => ({
@@ -158,7 +165,7 @@ const AccountsPage: React.FC = () => {
       sort_order: index
     }));
     
-    queryClient.setQueryData(['accounts', householdId, true], updatedAccounts);
+    queryClient.setQueryData(['accounts', household.id, true], updatedAccounts);
 
     try {
       // Отправляем изменения на сервер
@@ -169,11 +176,11 @@ const AccountsPage: React.FC = () => {
       
       await reorderAccountsMutation.mutateAsync({
         accounts: accountsForUpdate,
-        householdId
+        householdId: household.id
       });
     } catch (err) {
       // Восстанавливаем предыдущее состояние при ошибке
-      queryClient.setQueryData(['accounts', householdId, true], previousData);
+      queryClient.setQueryData(['accounts', household.id, true], previousData);
       console.error('Ошибка при изменении порядка счетов:', err);
     }
  };
