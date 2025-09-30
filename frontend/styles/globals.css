@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
- /* Основные цвета светлой темы */
+  /* Основные цвета светлой темы */
   --light-primary: 59, 130, 246; /* blue-500 */
   --light-primary-hover: 37, 99, 235; /* blue-600 */
   --light-secondary: 107, 114, 128; /* gray-500 */
@@ -41,7 +41,7 @@
 }
 
 body {
- color: rgb(var(--text-primary));
+  color: rgb(var(--text-primary));
   background-color: rgb(var(--background));
   transition: background-color 300ms ease, color 300ms ease;
 }

@@ -5,51 +5,51 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class', // Используем класс для управления темной темой
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         // Цвета для светлой темы
         light: {
-          primary: '#3B82F6', // blue-500
-          'primary-hover': '#2563EB', // blue-600
-          secondary: '#6B7280', // gray-500
-          'secondary-hover': '#4B5563', // gray-600
-          success: '#10B981', // emerald-50
-          'success-hover': '#059669', // emerald-600
-          danger: '#EF4444', // red-500
-          'danger-hover': '#DC2626', // red-600
-          warning: '#F59E0B', // amber-500
-          'warning-hover': '#D97706', // amber-600
+          primary: '#3B82F6',
+          'primary-hover': '#2563EB',
+          secondary: '#6B7280',
+          'secondary-hover': '#4B5563',
+          success: '#10B981',
+          'success-hover': '#059669',
+          danger: '#EF4444',
+          'danger-hover': '#DC2626',
+          warning: '#F59E0B',
+          'warning-hover': '#D97706',
           background: '#FFFFFF',
-          surface: '#F9FAFB', // gray-50
+          surface: '#F9FAFB',
           text: {
-            primary: '#1F2937', // gray-800
-            secondary: '#6B7280', // gray-500
-            muted: '#9CA3AF', // gray-400
+            primary: '#1F2937',
+            secondary: '#6B7280',
+            muted: '#9CA3AF',
           },
-          border: '#E5E7EB', // gray-200
+          border: '#E5E7EB',
         },
         // Цвета для темной темы
         dark: {
-          primary: '#60A5FA', // blue-400
-          'primary-hover': '#3B82F6', // blue-500
-          secondary: '#9CA3AF', // gray-400
-          'secondary-hover': '#D1D5DB', // gray-300
-          success: '#34D399', // emerald-400
-          'success-hover': '#10B981', // emerald-500
-          danger: '#F87171', // red-400
-          'danger-hover': '#EF4444', // red-500
-          warning: '#FBBF24', // amber-400
-          'warning-hover': '#F59E0B', // amber-500
-          background: '#111827', // gray-900
-          surface: '#1F2937', // gray-800
+          primary: '#60A5FA',
+          'primary-hover': '#3B82F6',
+          secondary: '#9CA3AF',
+          'secondary-hover': '#D1D5DB',
+          success: '#34D399',
+          'success-hover': '#10B981',
+          danger: '#F87171',
+          'danger-hover': '#EF4444',
+          warning: '#FBBF24',
+          'warning-hover': '#F59E0B',
+          background: '#111827',
+          surface: '#1F2937',
           text: {
-            primary: '#F9FAFB', // gray-50
-            secondary: '#D1D5DB', // gray-300
-            muted: '#9CA3AF', // gray-400
+            primary: '#F9FAFB',
+            secondary: '#D1D5DB',
+            muted: '#9CA3AF',
           },
-          border: '#374151', // gray-700
+          border: '#374151',
         }
       },
       transitionProperty: {
@@ -61,6 +61,7 @@ module.exports = {
       transitionTimingFunction: {
         'ease': 'ease',
       }
-    },
-  plugins: [],
+    }
+  },  // <-- ВОТ ЭТА СКОБКА ЗАКРЫВАЕТ theme
+  plugins: [],  // <-- plugins СНАРУЖИ theme!
 }
