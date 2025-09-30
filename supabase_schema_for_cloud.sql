@@ -352,7 +352,8 @@ BEGIN
  FROM accounts a
  LEFT JOIN transactions t ON t.account_id = a.id
   WHERE a.household_id = household_id_param
-  GROUP BY a.id, a.household_id, a.opening_balance;
+  GROUP BY a.id, a.household_id, a.name, a.type, a.currency, a.opening_balance,
+          a.is_archived, a.note, a.sort_order, a.created_at, a.updated_at, a.version;
 END;
 $$ LANGUAGE plpgsql;
 

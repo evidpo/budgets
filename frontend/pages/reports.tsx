@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Layout from '../../components/Layout';
-import Table from '../../components/ui/Table';
-import DatePicker from '../../components/ui/DatePicker';
-import Select from '../../components/ui/Select';
-import Button from '../../components/ui/Button';
-import Toggle from '../../components/ui/Toggle';
-import Card from '../../components/ui/Card';
-import { supabase } from '../../lib/supabase';
-import { useAccounts } from '../../lib/queries';
-import { useCategories } from '../../lib/queries';
-import { Household } from '../../lib/types';
+import Layout from '../components/Layout';
+import Table from '../components/ui/Table';
+import DatePicker from '../components/ui/DatePicker';
+import Select from '../components/ui/Select';
+import Button from '../components/ui/Button';
+import Toggle from '../components/ui/Toggle';
+import Card from '../components/ui/Card';
+import { supabase } from '../lib/supabase';
+import { useAccounts } from '../lib/queries';
+import { useCategories } from '../lib/queries';
+import { Household } from '../lib/types';
 
 interface ReportRow {
   [key: string]: any;
@@ -24,10 +24,9 @@ const ReportsPage: React.FC = () => {
   const [asOfDate, setAsOfDate] = useState<Date>(new Date());
   const [reportData, setReportData] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
- const [householdId, setHouseholdId] = useState<string>('');
+  const [householdId, setHouseholdId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
-  // Get current household ID
   useEffect(() => {
     const fetchHousehold = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -55,13 +54,11 @@ const ReportsPage: React.FC = () => {
   const { data: accounts = [] } = useAccounts(householdId, true);
   const { data: categories = [] } = useCategories(householdId);
 
-  // Format date for API requests
   const formatDateForApi = (date: Date | null): string | null => {
     if (!date) return null;
     return date.toISOString().split('T')[0];
   };
 
-  // Format currency
   const formatCurrency = (amount: number, currency: string = 'RUB'): string => {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -71,7 +68,6 @@ const ReportsPage: React.FC = () => {
     }).format(amount);
   };
 
-  // Fetch report data based on type
   const fetchReportData = async () => {
     if (!householdId) return;
     
@@ -83,7 +79,6 @@ const ReportsPage: React.FC = () => {
       const params = new URLSearchParams();
       
       if (reportType === 'overall-balance' || reportType === 'by-budgets') {
-        // For overall-balance and by-budgets, we might need additional params
         if (reportType === 'by-budgets') {
           params.append('as_of', formatDateForApi(asOfDate) || new Date().toISOString().split('T')[0]);
         }
@@ -114,7 +109,6 @@ const ReportsPage: React.FC = () => {
       
       const data = await response.json();
       
-      // Transform data based on report type
       let transformedData: ReportRow[] = [];
       
       switch (reportType) {
@@ -189,12 +183,10 @@ const ReportsPage: React.FC = () => {
     }
   };
 
-  // Fetch data when filters change
   useEffect(() => {
     fetchReportData();
   }, [reportType, fromDate, toDate, excludeTransfers, groupRoot, asOfDate, householdId]);
 
-  // Columns for each report type
   const columns = useMemo(() => {
     switch (reportType) {
       case 'overall-balance':
@@ -312,19 +304,16 @@ const ReportsPage: React.FC = () => {
       default:
         return [];
     }
- }, [reportType]);
+  }, [reportType]);
 
-  // Export to CSV
   const exportToCSV = () => {
     if (!reportData.length) return;
     
-    // Create CSV content
     const headers = columns.map(col => col.title).join(',');
     const rows = reportData.map(row => 
       columns.map(col => {
         let value = row[col.key as keyof typeof row];
         if (typeof value === 'number') {
-          // Format currency values for CSV
           if (['balance', 'limit', 'spent', 'available', 'deposits', 'withdrawals', 'net', 'total'].includes(col.key)) {
             value = formatCurrency(value).replace(/[^0-9.,-]/g, '');
           }
@@ -351,36 +340,30 @@ const ReportsPage: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Финансовые отчёты</h2>
           
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              onClick={exportToCSV} 
-              disabled={loading || !reportData.length}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Экспорт в CSV
-            </Button>
-          </div>
+          <Button 
+            onClick={exportToCSV} 
+            disabled={loading || !reportData.length}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            Экспорт в CSV
+          </Button>
+        </div>
         
-        {/* Filters */}
         <Card className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Тип отчёта
-              </label>
-              <Select
-                value={reportType}
-                onChange={setReportType}
-                options={[
-                  { value: 'overall-balance', label: 'Общий баланс' },
-                  { value: 'by-budgets', label: 'По бюджетам' },
-                  { value: 'by-accounts', label: 'По счетам' },
-                  { value: 'overall-movement', label: 'Движение по счетам' },
-                  { value: 'income-by-category', label: 'Доходы по категориям' },
-                  { value: 'expense-by-category', label: 'Расходы по категориям' }
-                ]}
-              />
-            </div>
+            <Select
+              label="Тип отчёта"
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              options={[
+                { value: 'overall-balance', label: 'Общий баланс' },
+                { value: 'by-budgets', label: 'По бюджетам' },
+                { value: 'by-accounts', label: 'По счетам' },
+                { value: 'overall-movement', label: 'Движение по счетам' },
+                { value: 'income-by-category', label: 'Доходы по категориям' },
+                { value: 'expense-by-category', label: 'Расходы по категориям' }
+              ]}
+            />
             
             {(reportType === 'by-budgets') ? (
               <div>
@@ -388,9 +371,9 @@ const ReportsPage: React.FC = () => {
                   Дата (для бюджетов)
                 </label>
                 <DatePicker
-                 value={asOfDate}
-                 onChange={setAsOfDate}
-               />
+                  value={asOfDate}
+                  onChange={setAsOfDate}
+                />
               </div>
             ) : (
               <>
@@ -438,14 +421,12 @@ const ReportsPage: React.FC = () => {
           </div>
         </Card>
         
-        {/* Error message */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
         
-        {/* Report content */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
           {loading ? (
             <div className="flex justify-center items-center h-64">

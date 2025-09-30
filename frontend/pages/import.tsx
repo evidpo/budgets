@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Layout from '../../components/Layout';
-import Button from '../../components/ui/Button';
-import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Modal from '../../components/ui/Modal';
-import Table from '../../components/ui/Table';
-import ProgressBar from '../../components/ui/ProgressBar';
-import { api } from '../../lib/api';
-import { Account, Category, Debt, CreateTransactionData } from '../../lib/types';
-import { supabase } from '../../lib/supabase';
+import Layout from '../components/Layout';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import Input from '../components/ui/Input';
+import Select from '../components/ui/Select';
+import Modal from '../components/ui/Modal';
+import Table from '../components/ui/Table';
+import ProgressBar from '../components/ui/ProgressBar';
+import { api } from '../lib/api';
+import { Account, Category, Debt, CreateTransactionData } from '../lib/types';
+import { supabase } from '../lib/supabase';
 
 interface ImportedTransaction {
   id: string;
@@ -19,9 +19,9 @@ interface ImportedTransaction {
   payee: string;
   note: string;
   account: string;
- category: string;
- debt: string;
- originalData: any;
+  category: string;
+  debt: string;
+  originalData: any;
   mappedAccount?: string;
   mappedCategory?: string;
   mappedDebt?: string;
@@ -29,7 +29,7 @@ interface ImportedTransaction {
 
 interface TransferCandidate {
   id: string;
- fromTx: ImportedTransaction;
+  fromTx: ImportedTransaction;
   toTx: ImportedTransaction;
   amount: number;
   dateDiff: number;
@@ -48,7 +48,6 @@ interface ColumnMapping {
 }
 
 const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDarkMode?: () => void }) => {
-  // Шаги мастера импорта
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
@@ -72,30 +71,26 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
   const [confirmedTransfers, setConfirmedTransfers] = useState<TransferCandidate[]>([]);
   const [importProgress, setImportProgress] = useState<number>(0);
   const [importStatus, setImportStatus] = useState<'idle' | 'importing' | 'success' | 'error'>('idle');
- const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [rollbackModalOpen, setRollbackModalOpen] = useState<boolean>(false);
   const [importId, setImportId] = useState<string>('');
-   const [householdId, setHouseholdId] = useState<string>('');
+  const [householdId, setHouseholdId] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
  
-   // Загрузка данных при монтировании
-   useEffect(() => {
-     // Получаем ID домохозяйства из сессии
-     const fetchUserAndHousehold = async () => {
-       const { data: { session } } = await supabase.auth.getSession();
-       if (session) {
-         // В реальном приложении нужно получить ID домохозяйства для текущего пользователя
-         // Это может быть через таблицу members, где user_id = session.user.id
-         setHouseholdId('current_household_id'); // Заглушка - в реальном приложении будет реальный ID
-         loadAccounts();
-         loadCategories();
-         loadDebts();
-       }
-     };
-     
-     fetchUserAndHousehold();
-   }, []);
+  useEffect(() => {
+    const fetchUserAndHousehold = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setHouseholdId('current_household_id');
+        loadAccounts();
+        loadCategories();
+        loadDebts();
+      }
+    };
+    
+    fetchUserAndHousehold();
+  }, []);
   
   const loadAccounts = async () => {
     try {
@@ -115,7 +110,7 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     } catch (err: any) {
       setError(err.message);
     }
- };
+  };
 
   const loadDebts = async () => {
     try {
@@ -127,13 +122,11 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     }
   };
 
-  // Обработка загрузки файла
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
       
-      // Проверяем формат файла
       if (selectedFile.type !== 'text/csv' && !selectedFile.name.endsWith('.csv')) {
         setError('Поддерживаются только CSV файлы');
         return;
@@ -144,7 +137,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
         const content = event.target?.result as string;
         setFileContent(content);
         
-        // Разбор CSV и извлечение заголовков
         const lines = content.split('\n');
         if (lines.length > 0) {
           const headerLine = lines[0];
@@ -154,9 +146,8 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
       };
       reader.readAsText(selectedFile);
     }
- };
+  };
 
-  // Автоматическое определение формата
   const autoDetectFormat = () => {
     const newMapping: ColumnMapping = {
       date: null,
@@ -169,13 +160,12 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
       debt: null
     };
 
-    // Пытаемся автоматически определить маппинг по названиям колонок
     headers.forEach(header => {
       const lowerHeader = header.toLowerCase();
       
       if (!newMapping.date && (lowerHeader.includes('date') || lowerHeader.includes('дата'))) {
         newMapping.date = header;
-      } else if (!newMapping.amount && (lowerHeader.includes('amount') || lowerHeader.includes('сумма') || lowerHeader.includes('amount'))) {
+      } else if (!newMapping.amount && (lowerHeader.includes('amount') || lowerHeader.includes('сумма'))) {
         newMapping.amount = header;
       } else if (!newMapping.description && (lowerHeader.includes('description') || lowerHeader.includes('описание') || lowerHeader.includes('назначение'))) {
         newMapping.description = header;
@@ -195,7 +185,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     setColumnMapping(newMapping);
   };
 
-  // Обработка маппинга колонок
   const handleColumnMappingChange = (field: keyof ColumnMapping, value: string) => {
     setColumnMapping(prev => ({
       ...prev,
@@ -203,7 +192,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     }));
   };
 
-  // Маппинг транзакций
   const mapTransactions = () => {
     if (!fileContent || !columnMapping.date || !columnMapping.amount) {
       setError('Необходимо указать хотя бы колонки даты и суммы');
@@ -213,22 +201,18 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     const lines = fileContent.split('\n');
     const result: ImportedTransaction[] = [];
 
-    // Пропускаем заголовок
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Разбиваем строку на колонки
       const columns = line.split(',').map(col => col.trim().replace(/"/g, ''));
       if (columns.length !== headers.length) continue;
 
-      // Создаем объект транзакции из CSV строки
       const row: Record<string, string> = {};
       headers.forEach((header, index) => {
         row[header] = columns[index];
       });
 
-      // Создаем транзакцию
       const transaction: ImportedTransaction = {
         id: `temp-${i}`,
         date: row[columnMapping.date!],
@@ -249,23 +233,18 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     setMappedTransactions(result);
   };
 
-  // Склейка переводов
   const findTransferCandidates = () => {
     const candidates: TransferCandidate[] = [];
     
-    // Эвристика склейки переводов: ±сумма, встречные знаки, разные счета, окно ±3 дня
     for (let i = 0; i < mappedTransactions.length; i++) {
       for (let j = i + 1; j < mappedTransactions.length; j++) {
         const tx1 = mappedTransactions[i];
         const tx2 = mappedTransactions[j];
         
-        // Проверяем, что суммы противоположны (с небольшой погрешностью)
         if (Math.abs(Math.abs(tx1.amount) - Math.abs(tx2.amount)) < 0.01 && 
             Math.sign(tx1.amount) !== Math.sign(tx2.amount)) {
           
-          // Проверяем, что счета разные (если доступны)
           if (tx1.account !== tx2.account) {
-            // Проверяем разницу в датах (в днях)
             const date1 = new Date(tx1.date);
             const date2 = new Date(tx2.date);
             const timeDiff = Math.abs(date1.getTime() - date2.getTime());
@@ -274,8 +253,8 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
             if (daysDiff <= 3) {
               candidates.push({
                 id: `candidate-${i}-${j}`,
-                fromTx: tx1.amount > 0 ? tx2 : tx1, // Отрицательная транзакция - from
-                toTx: tx1.amount > 0 ? tx1 : tx2,  // Положительная транзакция - to
+                fromTx: tx1.amount > 0 ? tx2 : tx1,
+                toTx: tx1.amount > 0 ? tx1 : tx2,
                 amount: Math.abs(tx1.amount),
                 dateDiff: daysDiff,
                 confirmed: false
@@ -289,15 +268,13 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     setTransferCandidates(candidates);
   };
 
-  // Подтверждение пары переводов
- const confirmTransfer = (candidateId: string) => {
+  const confirmTransfer = (candidateId: string) => {
     setTransferCandidates(prev => 
       prev.map(candidate => 
         candidate.id === candidateId ? { ...candidate, confirmed: true } : candidate
       )
     );
     
-    // Обновляем подтвержденные переводы
     const confirmed = transferCandidates
       .filter(candidate => candidate.id === candidateId || candidate.confirmed)
       .map(candidate => 
@@ -306,7 +283,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     setConfirmedTransfers(confirmed);
   };
 
-  // Отмена подтверждения пары
   const unconfirmTransfer = (candidateId: string) => {
     setTransferCandidates(prev => 
       prev.map(candidate => 
@@ -317,35 +293,27 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     setConfirmedTransfers(prev => prev.filter(t => t.id !== candidateId));
   };
 
- // Импорт транзакций
   const importTransactions = async () => {
     try {
       setImportStatus('importing');
       setImportProgress(0);
       
-      // Фильтруем транзакции, которые не являются частью подтвержденных переводов
       const transactionsToImport = mappedTransactions.filter(tx => {
         return !confirmedTransfers.some(transfer =>
           transfer.fromTx.id === tx.id || transfer.toTx.id === tx.id
         );
       });
       
-      // Подготавливаем транзакции для импорта
       const transactionsForImport = transactionsToImport.map(tx => {
-        // Находим соответствующие ID счета, категории и долга
         const accountId = accounts.find(acc => acc.name === tx.account)?.id;
         
-        // Обработка категории: если в CSV есть путь к категории (с использованием :), ищем соответствующую категорию
         let categoryId = null;
         if (tx.category) {
-          // Проверяем, является ли категория полным путем (с использованием : для дерева)
           const categoryPath = tx.category.includes(':') ? tx.category : null;
           
           if (categoryPath) {
-            // Ищем категорию по полному пути
             categoryId = categories.find(cat => cat.path === categoryPath)?.id;
           } else {
-            // Ищем категорию по имени
             categoryId = categories.find(cat => cat.name === tx.category)?.id;
           }
         }
@@ -354,7 +322,7 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
         
         const transactionData: CreateTransactionData = {
           household_id: householdId,
-          account_id: accountId || accounts[0]?.id, // Используем первый счет если не найден
+          account_id: accountId || accounts[0]?.id,
           amount: tx.amount,
           date: tx.date,
           category_id: categoryId || undefined,
@@ -367,35 +335,19 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
         return transactionData;
       });
       
-      // Импортируем обычные транзакции
       for (let i = 0; i < transactionsForImport.length; i++) {
         setImportProgress(Math.floor((i / transactionsForImport.length) * 50));
-        
-        // В реальном приложении здесь будет вызов API для импорта транзакции
-        // await api.createTransaction(transactionsForImport[i]);
-        await new Promise(resolve => setTimeout(resolve, 10)); // Имитация задержки
+        await new Promise(resolve => setTimeout(resolve, 10));
       }
       
-      // Импортируем переводы
       for (let i = 0; i < confirmedTransfers.length; i++) {
         setImportProgress(50 + Math.floor((i / confirmedTransfers.length) * 50));
-        
-        // В реальном приложении здесь будет вызов API для импорта перевода
-        // await api.createTransfer({
-        //   from_account_id: accounts.find(acc => acc.name === confirmedTransfers[i].fromTx.account)?.id || accounts[0]?.id,
-        //   to_account_id: accounts.find(acc => acc.name === confirmedTransfers[i].toTx.account)?.id || accounts[0]?.id,
-        //   amount: confirmedTransfers[i].amount,
-        //   date: confirmedTransfers[i].fromTx.date,
-        //   note: `Transfer: ${confirmedTransfers[i].fromTx.description} → ${confirmedTransfers[i].toTx.description}`
-        // });
-        await new Promise(resolve => setTimeout(resolve, 10)); // Имитация задержки
+        await new Promise(resolve => setTimeout(resolve, 10));
       }
       
-      // Генерируем ID импорта для возможности отката
       const generatedImportId = `import-${Date.now()}`;
       setImportId(generatedImportId);
       
-      // Выполняем импорт транзакций через API
       const importResult = await api.importTransactions(transactionsForImport, generatedImportId);
       if (importResult.error) {
         throw new Error(importResult.error);
@@ -407,12 +359,10 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
       setImportStatus('error');
       setError(err.message);
     }
- };
+  };
 
-  // Откат импорта
   const rollbackImport = async () => {
     try {
-      // Вызов API для отката импорта
       const rollbackResult = await api.rollbackImport(importId);
       if (rollbackResult.error) {
         throw new Error(rollbackResult.error);
@@ -427,7 +377,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     }
   };
 
-  // Колонки для таблицы транзакций
   const transactionColumns = [
     { key: 'date', title: 'Дата' },
     { key: 'description', title: 'Описание' },
@@ -471,7 +420,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
     )}
   ];
 
-  // Колонки для таблицы переводов
   const transferColumns = [
     { key: 'fromTx.date', title: 'Дата' },
     { key: 'fromTx.description', title: 'Описание' },
@@ -508,21 +456,20 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Мастер импорта финансовых данных</h2>
         
-        {/* Индикатор прогресса */}
-       <div className="mb-6">
-         <div className="flex justify-between mb-1">
-           <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Шаг {currentStep} из 5</span>
-           <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-             {currentStep === 1 && 'Загрузка CSV'}
-             {currentStep === 2 && 'Маппинг полей'}
-             {currentStep === 3 && 'Склейка переводов'}
-             {currentStep === 4 && 'Предпросмотр'}
-             {currentStep === 5 && 'Запись импорта'}
-           </span>
-         </div>
-         <ProgressBar value={(currentStep / 5) * 10} />
+        <div className="mb-6">
+          <div className="flex justify-between mb-1">
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Шаг {currentStep} из 5</span>
+            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              {currentStep === 1 && 'Загрузка CSV'}
+              {currentStep === 2 && 'Маппинг полей'}
+              {currentStep === 3 && 'Склейка переводов'}
+              {currentStep === 4 && 'Предпросмотр'}
+              {currentStep === 5 && 'Запись импорта'}
+            </span>
+          </div>
+          <ProgressBar value={(currentStep / 5) * 100} />
+        </div>
         
-        {/* Шаг 1: Загрузка CSV */}
         {currentStep === 1 && (
           <div className="space-y-6">
             <Card title="Загрузка CSV файла">
@@ -533,7 +480,7 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg className="w-12 h-12 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.6 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                     </svg>
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-semibold">Нажмите для загрузки</span> или перетащите файл сюда
@@ -557,17 +504,17 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
               </div>
               
               <div className="mt-6">
-               <h3 className="font-medium text-gray-800 dark:text-white mb-2">Поддерживаемые форматы</h3>
-               <ul className="list-disc pl-5 text-gray-60 dark:text-gray-300 space-y-1">
-                 <li>CSV (Alzex и стандартный формат)</li>
-                 <li>Дата, сумма, описание, категория (с поддержкой дерева через :), счёт, получатель</li>
-                 <li>Для формата Alzex: дата, сумма, категория, счёт, описание</li>
-               </ul>
+                <h3 className="font-medium text-gray-800 dark:text-white mb-2">Поддерживаемые форматы</h3>
+                <ul className="list-disc pl-5 text-gray-600 dark:text-gray-300 space-y-1">
+                  <li>CSV (Alzex и стандартный формат)</li>
+                  <li>Дата, сумма, описание, категория (с поддержкой дерева через :), счёт, получатель</li>
+                  <li>Для формата Alzex: дата, сумма, категория, счёт, описание</li>
+                </ul>
               </div>
             </Card>
             
             <div className="flex justify-between">
-              <div></div> {/* Пустой div для выравнивания */}
+              <div></div>
               <Button 
                 variant="primary" 
                 onClick={() => {
@@ -586,7 +533,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
           </div>
         )}
         
-        {/* Шаг 2: Маппинг полей */}
         {currentStep === 2 && (
           <div className="space-y-6">
             <Card title="Маппинг полей CSV">
@@ -595,117 +541,85 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Дата <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={columnMapping.date || 'none'}
-                    options={[
-                      { value: 'none', label: 'Выберите колонку' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('date', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label={<span>Дата <span className="text-red-500">*</span></span>}
+                  value={columnMapping.date || 'none'}
+                  options={[
+                    { value: 'none', label: 'Выберите колонку' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('date', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Сумма <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={columnMapping.amount || 'none'}
-                    options={[
-                      { value: 'none', label: 'Выберите колонку' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('amount', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label={<span>Сумма <span className="text-red-500">*</span></span>}
+                  value={columnMapping.amount || 'none'}
+                  options={[
+                    { value: 'none', label: 'Выберите колонку' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('amount', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Описание
-                  </label>
-                  <Select
-                    value={columnMapping.description || 'none'}
-                    options={[
-                      { value: 'none', label: 'Не использовать' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('description', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label="Описание"
+                  value={columnMapping.description || 'none'}
+                  options={[
+                    { value: 'none', label: 'Не использовать' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('description', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Получатель (Payee)
-                  </label>
-                  <Select
-                    value={columnMapping.payee || 'none'}
-                    options={[
-                      { value: 'none', label: 'Не использовать' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('payee', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label="Получатель (Payee)"
+                  value={columnMapping.payee || 'none'}
+                  options={[
+                    { value: 'none', label: 'Не использовать' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('payee', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Комментарий
-                  </label>
-                  <Select
-                    value={columnMapping.note || 'none'}
-                    options={[
-                      { value: 'none', label: 'Не использовать' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('note', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label="Комментарий"
+                  value={columnMapping.note || 'none'}
+                  options={[
+                    { value: 'none', label: 'Не использовать' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('note', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Счет
-                  </label>
-                  <Select
-                    value={columnMapping.account || 'none'}
-                    options={[
-                      { value: 'none', label: 'Не использовать' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('account', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label="Счет"
+                  value={columnMapping.account || 'none'}
+                  options={[
+                    { value: 'none', label: 'Не использовать' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('account', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Категория
-                  </label>
-                  <Select
-                    value={columnMapping.category || 'none'}
-                    options={[
-                      { value: 'none', label: 'Не использовать' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('category', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label="Категория"
+                  value={columnMapping.category || 'none'}
+                  options={[
+                    { value: 'none', label: 'Не использовать' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('category', e.target.value)}
+                />
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Долг
-                  </label>
-                  <Select
-                    value={columnMapping.debt || 'none'}
-                    options={[
-                      { value: 'none', label: 'Не использовать' },
-                      ...headers.map(header => ({ value: header, label: header }))
-                    ]}
-                    onChange={(e) => handleColumnMappingChange('debt', e.target.value)}
-                  />
-                </div>
+                <Select
+                  label="Долг"
+                  value={columnMapping.debt || 'none'}
+                  options={[
+                    { value: 'none', label: 'Не использовать' },
+                    ...headers.map(header => ({ value: header, label: header }))
+                  ]}
+                  onChange={(e) => handleColumnMappingChange('debt', e.target.value)}
+                />
               </div>
               
               <div className="flex justify-between">
@@ -733,11 +647,10 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
           </div>
         )}
         
-        {/* Шаг 3: Склейка переводов */}
         {currentStep === 3 && (
           <div className="space-y-6">
             <Card title="Склейка переводов">
-              <p className="text-gray-60 dark:text-gray-300 mb-4">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 Система автоматически нашла возможные переводы. Подтвердите или отклоните каждую пару.
                 Эвристика: ±сумма, встречные знаки, разные счета, окно ±3 дня.
               </p>
@@ -784,7 +697,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
           </div>
         )}
         
-        {/* Шаг 4: Предпросмотр */}
         {currentStep === 4 && (
           <div className="space-y-6">
             <Card title="Предпросмотр импорта">
@@ -819,7 +731,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
           </div>
         )}
         
-        {/* Шаг 5: Запись импорта */}
         {currentStep === 5 && (
           <div className="space-y-6">
             <Card title="Запись импорта">
@@ -888,7 +799,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
           </div>
         )}
         
-        {/* Модальное окно подтверждения отката */}
         <Modal 
           isOpen={rollbackModalOpen} 
           onClose={() => setRollbackModalOpen(false)} 
@@ -915,7 +825,6 @@ const ImportPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDa
           </div>
         </Modal>
         
-        {/* Отображение ошибок */}
         {error && (
           <div className="mt-4 p-4 bg-red-100 text-red-800 rounded-md dark:bg-red-900 dark:text-red-200">
             {error}

@@ -11,19 +11,16 @@ import { useBudgets, useBudget, useBudgetCompute, useCategories, useAccounts } f
 import { useCreateBudgetMutation, useUpdateBudgetMutation } from '../lib/mutations';
 import { Budget, Category, Account, BudgetComputeParams, BudgetComputeResult } from '../lib/types';
 
-// Интерфейс для фильтров бюджетов
 interface BudgetFilter {
   period?: string;
   search?: string;
 }
 
-// Интерфейс для шага мастера создания бюджета
 interface BudgetWizardStep {
   step: 'period' | 'limit' | 'filters';
   budget: Partial<Budget>;
 }
 
-// Компонент карточки бюджета
 interface BudgetCardProps {
   budget: Budget;
   computeResult?: BudgetComputeResult;
@@ -109,10 +106,9 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, computeResult, onEdit, 
         </div>
       </div>
     </Card>
- );
+  );
 };
 
-// Компонент формы создания/редактирования бюджета (мастер)
 interface BudgetWizardProps {
   budget?: Partial<Budget>;
   onClose: () => void;
@@ -135,7 +131,6 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
   
   const [dateError, setDateError] = useState<string | null>(null);
 
-  // Валидация даты
   useEffect(() => {
     if (formData.start_date && formData.end_date) {
       const start = new Date(formData.start_date);
@@ -173,6 +168,7 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  return (
     <Modal isOpen={true} onClose={onClose} title={isEditing ? "Редактировать бюджет" : "Создать бюджет"}>
       <div className="mb-6">
         <div className="flex justify-between mb-4">
@@ -196,7 +192,6 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
           </button>
         </div>
 
-        {/* Шаг 1: Период */}
         {currentStep === 'period' && (
           <div className="space-y-4">
             <div>
@@ -242,18 +237,18 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
               <Select
                 value={formData.period || 'monthly'}
                 onChange={(value) => handleChange('period', value)}
-              >
-                <option value="daily">Ежедневный</option>
-                <option value="weekly">Еженедельный</option>
-                <option value="monthly">Ежемесячный</option>
-                <option value="yearly">Ежегодный</option>
-                <option value="custom">Пользовательский</option>
-              </Select>
+                options={[
+                  { value: 'daily', label: 'Ежедневный' },
+                  { value: 'weekly', label: 'Еженедельный' },
+                  { value: 'monthly', label: 'Ежемесячный' },
+                  { value: 'yearly', label: 'Ежегодный' },
+                  { value: 'custom', label: 'Пользовательский' }
+                ]}
+              />
             </div>
           </div>
         )}
 
-        {/* Шаг 2: Лимит/Перенос */}
         {currentStep === 'limit' && (
           <div className="space-y-4">
             <div>
@@ -275,10 +270,11 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
               <Select
                 value={formData.direction || 'expense'}
                 onChange={(value) => handleChange('direction', value as 'expense' | 'income')}
-              >
-                <option value="expense">Расход</option>
-                <option value="income">Доход</option>
-              </Select>
+                options={[
+                  { value: 'expense', label: 'Расход' },
+                  { value: 'income', label: 'Доход' }
+                ]}
+              />
             </div>
             
             <div className="flex items-center">
@@ -296,7 +292,6 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
           </div>
         )}
 
-        {/* Шаг 3: Фильтры */}
         {currentStep === 'filters' && (
           <div className="space-y-4">
             <div className="flex items-center">
@@ -342,7 +337,6 @@ const BudgetWizard: React.FC<BudgetWizardProps> = ({ budget, onClose, onSave, is
   );
 };
 
-// Основной компонент страницы бюджетов
 export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDarkMode?: () => void }) {
   const [filters, setFilters] = useState<BudgetFilter>({});
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
@@ -350,24 +344,19 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [groupBy, setGroupBy] = useState<'none' | 'period'>('none');
   
-  // Получаем текущий household_id (в реальном приложении это будет из контекста или состояния)
   const householdId = 'test-household-id';
   
-  // Запросы к API
   const { data: budgets = [], isLoading, refetch } = useBudgets(householdId);
   const { data: categories = [] } = useCategories(householdId);
   const { data: accounts = [] } = useAccounts(householdId);
   
-  // Мутации
   const createBudgetMutation = useCreateBudgetMutation();
   const updateBudgetMutation = useUpdateBudgetMutation();
   
-  // Создаем параметры для вычисления бюджетов
   const computeParams: BudgetComputeParams = {
     as_of: new Date().toISOString().split('T')[0]
   };
   
-  // Фильтрация бюджетов
   const filteredBudgets = budgets.filter(budget => {
     const matchesPeriod = !filters.period || budget.period === filters.period;
     const matchesSearch = !filters.search || 
@@ -381,7 +370,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
     return matchesPeriod && matchesSearch;
   });
   
-  // Группировка бюджетов
   const groupedBudgets = groupBy === 'period' 
     ? filteredBudgets.reduce((acc, budget) => {
         const periodKey = `${budget.start_date} - ${budget.end_date}`;
@@ -393,7 +381,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
       }, {} as Record<string, Budget[]>)
     : { 'all': filteredBudgets };
 
-  // Обработчики
   const handleCreateBudget = () => {
     setEditingBudget(null);
     setIsWizardOpen(true);
@@ -406,7 +393,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
   
   const handleDeleteBudget = (id: string) => {
     if (window.confirm('Вы уверены, что хотите удалить этот бюджет?')) {
-      // В реальном приложении здесь будет вызов мутации удаления
       console.log('Удаление бюджета с ID:', id);
       refetch();
     }
@@ -415,13 +401,11 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
   const handleSaveBudget = async (budgetData: Partial<Budget>) => {
     try {
       if (editingBudget) {
-        // Обновляем существующий бюджет
         await updateBudgetMutation.mutateAsync({
           id: editingBudget.id,
           data: budgetData as any
         });
       } else {
-        // Создаем новый бюджет
         await createBudgetMutation.mutateAsync({
           ...budgetData,
           household_id: householdId
@@ -434,7 +418,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
     }
   };
 
-  // Столбцы для таблицы бюджетов
   const budgetTableColumns = [
     {
       key: 'name',
@@ -464,7 +447,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
       key: 'spent',
       title: 'Факт',
       render: (value: number, record: Budget) => {
-        // Вычисляем данные для бюджета
         const { data: computeResult } = useBudgetCompute(record.id, computeParams);
         const spent = computeResult?.spent || 0;
         return <span>{spent.toLocaleString('ru-RU')} ₽</span>;
@@ -475,7 +457,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
       key: 'available',
       title: 'Доступно',
       render: (value: number, record: Budget) => {
-        // Вычисляем данные для бюджета
         const { data: computeResult } = useBudgetCompute(record.id, computeParams);
         const available = computeResult?.available || 0;
         return <span className={available < 0 ? 'text-red-600' : 'text-green-600'}>
@@ -488,7 +469,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
       key: 'status',
       title: 'Статус',
       render: (value: string, record: Budget) => {
-        // Вычисляем данные для бюджета
         const { data: computeResult } = useBudgetCompute(record.id, computeParams);
         const spent = computeResult?.spent || 0;
         const limit = computeResult?.limit || record.amount || 0;
@@ -505,7 +485,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
   return (
     <Layout title="Бюджеты" darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
       <div className="space-y-6">
-        {/* Заголовок и действия */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Бюджеты</h1>
           
@@ -525,27 +504,28 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
               <Select
                 value={filters.period || ''}
                 onChange={(value) => setFilters({...filters, period: value || undefined})}
-              >
-                <option value="">Все периоды</option>
-                <option value="daily">Ежедневный</option>
-                <option value="weekly">Еженедельный</option>
-                <option value="monthly">Ежемесячный</option>
-                <option value="yearly">Ежегодный</option>
-                <option value="custom">Пользовательский</option>
-              </Select>
+                options={[
+                  { value: '', label: 'Все периоды' },
+                  { value: 'daily', label: 'Ежедневный' },
+                  { value: 'weekly', label: 'Еженедельный' },
+                  { value: 'monthly', label: 'Ежемесячный' },
+                  { value: 'yearly', label: 'Ежегодный' },
+                  { value: 'custom', label: 'Пользовательский' }
+                ]}
+              />
               
               <Select
                 value={groupBy}
                 onChange={(value) => setGroupBy(value as any)}
-              >
-                <option value="none">Без группировки</option>
-                <option value="period">По периодам</option>
-              </Select>
+                options={[
+                  { value: 'none', label: 'Без группировки' },
+                  { value: 'period', label: 'По периодам' }
+                ]}
+              />
             </div>
           </div>
         </div>
 
-        {/* Таблица бюджетов */}
         <Card>
           <Table
             data={filteredBudgets}
@@ -555,18 +535,16 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
           />
         </Card>
 
-        {/* Карточки бюджетов */}
         {Object.entries(groupedBudgets).map(([period, periodBudgets]) => (
           <div key={period}>
             {groupBy !== 'none' && (
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-20 mb-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
                 {period}
               </h2>
             )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {periodBudgets.map(budget => {
-                // Вычисляем данные для бюджета
                 const { data: computeResult } = useBudgetCompute(budget.id, computeParams);
                 
                 return (
@@ -583,7 +561,6 @@ export default function BudgetsPage({ darkMode, toggleDarkMode }: { darkMode?: b
           </div>
         ))}
 
-        {/* Мастер создания/редактирования бюджета */}
         {isWizardOpen && (
           <BudgetWizard
             budget={editingBudget || undefined}

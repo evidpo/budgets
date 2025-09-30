@@ -31,10 +31,7 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
   const [categoryTree, setCategoryTree] = useState<CategoryTreeItem[]>([]);
   const [householdId, setHouseholdId] = useState<string | null>(null);
   
-  // In a real implementation, you would get the household ID from context, session, or route params
- // For now, using a placeholder
   useEffect(() => {
-    // In a real implementation, this would come from context or session
     setHouseholdId('placeholder_household_id');
   }, []);
   
@@ -50,7 +47,6 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
     color: '#3B82F6',
   });
 
-  // Build category tree from flat list
   useEffect(() => {
     if (categories.length > 0) {
       const rootCategories = buildCategoryTree(categories);
@@ -62,22 +58,18 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
     const categoryMap: Record<string, CategoryTreeItem> = {};
     const rootCategories: CategoryTreeItem[] = [];
 
-    // Create a map of all categories
     categories.forEach(cat => {
       categoryMap[cat.id] = { ...cat, children: [], level: 0 };
     });
 
-    // Build the tree structure
     categories.forEach(cat => {
       const node = categoryMap[cat.id];
       
       if (cat.parent_id && categoryMap[cat.parent_id]) {
-        // This is a child category
         const parent = categoryMap[cat.parent_id];
         node.level = parent.level + 1;
         parent.children.push(node);
       } else {
-        // This is a root category
         node.level = 0;
         rootCategories.push(node);
       }
@@ -204,9 +196,6 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
     }
   };
 
-  // The DragAndDropList component is not currently being used in the UI
-  // We'll keep the function for potential future use
-
   const renderCategoryTree = (categories: CategoryTreeItem[], level = 0) => {
     return categories.map(category => {
       const isExpanded = expandedCategories.has(category.id);
@@ -266,18 +255,16 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
     });
   };
 
-  // Sample color options
   const colorOptions = [
-    { value: '#3B82F6', label: 'Синий' }, // blue-500
-    { value: '#EF4444', label: 'Красный' }, // red-500
-    { value: '#10B981', label: 'Зеленый' }, // green-50
-    { value: '#F59E0B', label: 'Желтый' }, // amber-500
-    { value: '#8B5CF6', label: 'Фиолетовый' }, // violet-500
-    { value: '#EC4899', label: 'Розовый' }, // pink-500
+    { value: '#3B82F6', label: 'Синий' },
+    { value: '#EF4444', label: 'Красный' },
+    { value: '#10B981', label: 'Зеленый' },
+    { value: '#F59E0B', label: 'Желтый' },
+    { value: '#8B5CF6', label: 'Фиолетовый' },
+    { value: '#EC4899', label: 'Розовый' },
   ];
 
-  // Sample icon options
- const iconOptions = [
+  const iconOptions = [
     { value: 'shopping-cart', label: '🛒' },
     { value: 'dollar', label: '💰' },
     { value: 'car', label: '🚗' },
@@ -288,7 +275,7 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
     { value: 'gift', label: '🎁' },
   ];
 
- return (
+  return (
     <Layout title="Категории" darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -355,106 +342,94 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Название
-            </label>
             <Input
+              label="Название"
               type="text"
               name="name"
               value={formData.name}
               onChange={handleFormChange}
               required
-              className="w-full"
             />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Тип
-              </label>
-              <Select
-                name="type"
-                value={formData.type}
-                onChange={handleFormChange}
-                className="w-full"
-              >
-                <option value="expense">Расход</option>
-                <option value="income">Доход</option>
-              </Select>
-            </div>
+            <Select
+              label="Тип"
+              name="type"
+              value={formData.type}
+              onChange={handleFormChange}
+              options={[
+                { value: 'expense', label: 'Расход' },
+                { value: 'income', label: 'Доход' }
+              ]}
+            />
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Родительская категория
-              </label>
-              <Select
-                name="parent_id"
-                value={formData.parent_id || ''}
-                onChange={handleFormChange}
-                className="w-full"
-              >
-                <option value="">Без родителя (корневая)</option>
-                {categories
-                  .filter(cat => cat.id !== editingCategory?.id) // Don't show current category as parent option
-                  .map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-              </Select>
+            <Select
+              label="Родительская категория"
+              name="parent_id"
+              value={formData.parent_id || ''}
+              onChange={handleFormChange}
+              options={[
+                { value: '', label: 'Без родителя (корневая)' },
+                ...categories
+                  .filter(cat => cat.id !== editingCategory?.id)
+                  .map(category => ({
+                    value: category.id,
+                    label: category.name
+                  }))
+              ]}
+            />
+          </div>
+            
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Иконка
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {iconOptions.map(icon => (
+                <button
+                  key={icon.value}
+                  type="button"
+                  onClick={() => handleIconChange(icon.value)}
+                  className={`p-2 rounded border ${
+                    formData.icon === icon.value
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                >
+                  {icon.label}
+                </button>
+              ))}
             </div>
+          </div>
           
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Иконка
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {iconOptions.map(icon => (
-                  <button
-                    key={icon.value}
-                    type="button"
-                    onClick={() => handleIconChange(icon.value)}
-                    className={`p-2 rounded border ${
-                      formData.icon === icon.value
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}
-                  >
-                    {icon.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Цвет
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {colorOptions.map(color => (
-                  <button
-                    key={color.value}
-                    type="button"
-                    onClick={() => handleColorChange(color.value)}
-                    className={`w-8 h-8 rounded-full border ${
-                      formData.color === color.value
-                        ? 'border-gray-800 dark:border-gray-200'
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}
-                    style={{ backgroundColor: color.value }}
-                    title={color.label}
-                  />
-                ))}
-                <input
-                  type="color"
-                  value={formData.color}
-                  onChange={(e) => handleColorChange(e.target.value)}
-                  className="w-8 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Цвет
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {colorOptions.map(color => (
+                <button
+                  key={color.value}
+                  type="button"
+                  onClick={() => handleColorChange(color.value)}
+                  className={`w-8 h-8 rounded-full border ${
+                    formData.color === color.value
+                      ? 'border-gray-800 dark:border-gray-200'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  style={{ backgroundColor: color.value }}
+                  title={color.label}
                 />
-              </div>
+              ))}
+              <input
+                type="color"
+                value={formData.color}
+                onChange={(e) => handleColorChange(e.target.value)}
+                className="w-8 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+              />
             </div>
+          </div>
           
           <div className="flex justify-end space-x-3 pt-4">
             <Button 
@@ -479,7 +454,7 @@ const CategoriesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; togg
         </form>
       </Modal>
     </Layout>
- );
+  );
 };
 
 export default CategoriesPage;

@@ -16,7 +16,7 @@ interface RuleFormData {
   priority: number;
   category_id: string;
   pattern: string;
- is_active: boolean;
+  is_active: boolean;
 }
 
 const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDarkMode?: () => void }) => {
@@ -24,12 +24,10 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<Rule | null>(null);
   const [denseRows, setDenseRows] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<string>('all'); // 'all', 'active', 'inactive'
+  const [activeFilter, setActiveFilter] = useState<string>('all');
   const [householdId, setHouseholdId] = useState<string | null>(null);
   
-  // В реальной реализации householdId будет получаться из контекста или сессии
   useEffect(() => {
-    // Заглушка - в реальной реализации получать householdId из контекста
     setHouseholdId('placeholder_household_id');
   }, []);
 
@@ -47,7 +45,6 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
     is_active: true,
   });
 
-  // Фильтрация правил
   const filteredRules = rules.filter(rule => {
     const matchesSearch = 
       rule.pattern.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -142,7 +139,6 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
     }
   };
 
-  // Колонки таблицы
   const columns = [
     {
       key: 'type',
@@ -186,7 +182,7 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
       key: 'priority',
       title: 'Приоритет',
       render: (value: number) => (
-        <span className="px-2 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-80 dark:text-purple-200">
+        <span className="px-2 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200">
           {value}
         </span>
       )
@@ -220,7 +216,6 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
     }
   ];
 
-  // Определяем плотность строк
   const tableRowClass = denseRows ? 'py-2' : 'py-4';
 
   return (
@@ -346,6 +341,7 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
                 className="w-full"
               />
             </div>
+          </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -384,13 +380,11 @@ const RulesPage = ({ darkMode, toggleDarkMode }: { darkMode?: boolean; toggleDar
               disabled={categoriesLoading}
             >
               <option value="">Выберите категорию</option>
-              {categories
-                .filter(cat => cat.id !== editingRule?.category_id) // Exclude current category if editing
-                .map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </Select>
           </div>
           
